@@ -26,6 +26,10 @@ app.use(bodyParser.json());
 // Middleware for parsing JSON bodies and handling file uploads
 app.use(express.json());
 
+app.get("/health", async (req, res) => {
+  res.status(200).json({ message: "Server is in healthy state" });
+});
+
 // Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/company", companyRouter); 

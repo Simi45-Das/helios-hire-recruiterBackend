@@ -1,17 +1,20 @@
 const mongoose = require("mongoose");
 
 const photoSchema = new mongoose.Schema({
+  companyId: {
+    type: String, // Storing as a simple string instead of ObjectId
+    required: true, // Ensures every record has a companyId
+  },
   urls: [
-    // Array to store multiple URLs
     {
-      type: String,
-      required: true,
+      type: String, // Storing URLs as strings in an array
+      required: true, // Ensures URLs are provided
     },
   ],
   uploadedAt: {
     type: Date,
-    default: Date.now,
+    default: Date.now, // Automatically sets the upload time
   },
 });
 
-module.exports = mongoose.model("company_photo", photoSchema);
+module.exports = mongoose.model("CompanyPhoto", photoSchema);

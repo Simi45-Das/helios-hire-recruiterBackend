@@ -1,8 +1,18 @@
 const express = require("express");
 const router = express.Router();
-const JobController = require("../controllers/jobpost");
+const {
+  createJobPost,
+  getJobPostsById,
+  getJobPostsByCompanyId,
+} = require("../controllers/jobpost");
+const { authenticate } = require("../middleware/auth");
 
-// POST route to create a job post
-router.post("/postJob", JobController.postJob);
+router.post("/create-job-post", authenticate, createJobPost);
+router.get("/get-job-posts-by-id/:id", authenticate, getJobPostsById);
+router.get(
+  "/get-job-posts-by-company-id",
+  authenticate,
+  getJobPostsByCompanyId
+);
 
 module.exports = router;

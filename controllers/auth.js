@@ -6,7 +6,7 @@ const jwt = require("jsonwebtoken");
 require("dotenv").config();
 
 exports.register = async (req, res) => {
-  const { email, password } = req.body;
+  const { email, password, fullName, companyName } = req.body;
 
   // Generate a random company ID
   const companyId = crypto.randomBytes(4).toString("hex").toUpperCase();
@@ -16,7 +16,13 @@ exports.register = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Create and save user in DB
-    const newUser = new User({ email, password: hashedPassword, companyId });
+    const newUser = new User({
+      email,
+      password: hashedPassword,
+      companyId,
+      fullName,
+      companyName,
+    });
     await newUser.save();
 
     // Send company ID to user's email
@@ -24,6 +30,7 @@ exports.register = async (req, res) => {
 
     res.status(201).json({
       message: "Registration successful! Check your email for Company ID.",
+      companyId,
     });
   } catch (error) {
     res.status(500).json({ message: "Registration failed.", error });
@@ -35,7 +42,9 @@ exports.login = async (req, res) => {
 
   try {
     // Find user by company ID
-    const user = await User.findOne({ companyId });
+    const user = await User.findOne({
+      companyId,
+    });
     if (!user) {
       return res
         .status(404)
@@ -52,10 +61,8 @@ exports.login = async (req, res) => {
 
     // Create and sign JWT token
     const payload = {
-      user: {
-        id: user.id,
-        companyId: user.companyId,
-      },
+      id: user.id,
+      companyId: user.companyId,
     };
 
     const token = jwt.sign(payload, process.env.JWT_SECRET, {

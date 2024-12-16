@@ -3,6 +3,7 @@ const router = express.Router();
 const multer = require("multer");
 const path = require("path");
 const notificationController = require("../controllers/notification");
+const { authenticate } = require("../middleware/auth");
 
 // Multer configuration for PDF uploads
 const storage = multer.diskStorage({
@@ -18,9 +19,23 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage: storage });
 
+// Routes
+router.get(
+  "/get-notification-by-company-id",
+  authenticate, // Middleware to extract JWT
+  notificationController.getNotificationByCompanyId
+);
+
+router.get(
+  "/get-all-notifications",
+  authenticate, // Authentication required
+  notificationController.getAllNotifications
+);
+
 router.post(
   "/submit-notification",
-  upload.single("notificationPdf"),
+  authenticate,
+  upload.single("notificationPdf"), // File upload for notifications
   notificationController.createNotification
 );
 

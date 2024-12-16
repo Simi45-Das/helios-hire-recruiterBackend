@@ -30,27 +30,51 @@ const uploadToDrive = async (file) => {
     fields: "id",
   });
 
-  // Set file permission to public
+  const fileId = response.data.id;
+
+  // Set file permission to public (anyone with the link)
   await drive.permissions.create({
-    fileId: response.data.id,
+    fileId: fileId,
     requestBody: {
-      role: "reader",
-      type: "anyone",
+      role: "reader", // Viewer access
+      type: "anyone", // Anyone can view the file
     },
   });
 
-  const fileUrl = `https://drive.google.com/uc?id=${response.data.id}`;
+  // Verify permissions
+  const permissions = await drive.permissions.list({
+    fileId: fileId,
+  });
+  console.log("Permissions for file:", permissions.data.items); // Log the permissions to confirm
+
+  const fileUrl = `https://drive.google.com/uc?id=${fileId}`;
   return fileUrl;
 };
 
 // Save multiple photo URLs in MongoDB under one object ID
-const savePhotoUrls = async (urls) => {
-  const photo = new Photo({ urls }); // Save URLs array
+const savePhotoUrls = async ({ urls, companyId }) => {
+  const photo = new Photo({ urls, companyId }); // Ensure both urls and companyId are passed
   await photo.save();
   return photo;
+};
+
+// Get photos by companyId
+const getPhotosByCompanyId = async (companyId) => {
+  try {
+    const photos = await Photo.findOne({ companyId });
+
+    if (!photos) {
+      throw new Error("No photos found for this company.");
+    }
+
+    return photos;
+  } catch (error) {
+    throw new Error(error.message);
+  }
 };
 
 module.exports = {
   uploadToDrive,
   savePhotoUrls,
+  getPhotosByCompanyId,
 };
